@@ -6,13 +6,14 @@ import json
 from flask import jsonify
 
 
-database_filename = "casting_agency.sqlite"
-project_dir = os.path.dirname(os.path.abspath(__file__))
-database_path = "sqlite:///{}".format(
-    os.path.join(project_dir, database_filename))
+database_name = "casting_agency"
+database_path = "postgres://{}/{}".format('localhost:5432', database_name)
+# project_dir = os.path.dirname(os.path.abspath(__file__))
+# database_path = "sqlite:///{}".format(
+#     os.path.join(project_dir, database_filename))
 
-# print("database path")
-# print(database_path)
+print("database path")
+print(database_path)
 
 
 db = SQLAlchemy()
@@ -43,7 +44,7 @@ def db_drop_and_create_all():
 
 
 class Movies(db.Model):
-    id = Column(Integer().with_variant(Integer, "sqlite"), primary_key=True)
+    id = Column(Integer, primary_key=True)
     title = Column(String(80), unique=False)
     release_date = Column(DateTime, default=datetime.utcnow)
 
@@ -66,7 +67,7 @@ class Movies(db.Model):
 
 
 class Actor(db.Model):
-    id = Column(Integer().with_variant(Integer, "sqlite"), primary_key=True)
+    id = Column(Integer, primary_key=True)
     name = Column(String(80), unique=False)
     age = Column(Integer(), unique=False)
     gender = Column(String(6), unique=False)
