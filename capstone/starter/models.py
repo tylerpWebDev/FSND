@@ -5,6 +5,7 @@ from flask_sqlalchemy import SQLAlchemy
 import json
 from flask import jsonify
 
+
 database_filename = "casting_agency.sqlite"
 project_dir = os.path.dirname(os.path.abspath(__file__))
 database_path = "sqlite:///{}".format(
@@ -12,11 +13,6 @@ database_path = "sqlite:///{}".format(
 
 # print("database path")
 # print(database_path)
-
-'''
-TODO:
-	Update data types for necessary table columns and migrate the db again
-'''
 
 
 db = SQLAlchemy()

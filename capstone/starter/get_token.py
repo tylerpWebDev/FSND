@@ -8,6 +8,13 @@ client_id = os.environ.get('CLIENT_ID')
 audience = os.environ.get('AUDIENCE')
 
 
+def cprint(label, data):
+    print("")
+    print(label)
+    print(data)
+    print("")
+
+
 def get_token(user, pwd):
     data = dict(
         grant_type="password",
@@ -29,9 +36,15 @@ def get_token(user, pwd):
     return token
 
 
+assistant_token = get_token("assistant@casting.com", "Testpassword!")
+director_token = get_token("director@casting.com", "Testpassword!")
 producer_token = get_token("producer@casting.com", "Testpassword!")
 
-print("")
-print("Producer Token")
-print(producer_token)
-print("")
+os.environ["ASSISTANT_TOKEN"] = assistant_token
+os.environ["DIRECTOR_TOKEN"] = director_token
+os.environ["PRODUCER_TOKEN"] = producer_token
+
+
+cprint("Assistant Token", assistant_token)
+cprint("Director Token", director_token)
+cprint("Prodcuer Token", producer_token)

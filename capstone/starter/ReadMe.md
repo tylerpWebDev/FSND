@@ -54,4 +54,5 @@ Todos
 			- Update test_app.py to include tests for all levels of authentication
 			- Eliminate unneccessary files
 			- Clean up comments
+			- Update gitignore file
 			

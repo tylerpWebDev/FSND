@@ -1,5 +1,6 @@
 #!/bin/bash
-export LOCAL_DATABASE="casting_agency_test.sqlite"
+export LOCAL_DATABASE="casting_agency.sqlite"
+export TEST_LOCAL_DATABASE="casting_agency_test.sqlite"
 export DOMAIN="udacity-capstone-castingagency.us.auth0.com"
 export AUDIENCE="castingagency"
 export ALGORITHM="RS256"

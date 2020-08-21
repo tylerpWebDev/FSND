@@ -29,7 +29,8 @@ def cprint(string1, string2):
 
 def get_token_auth_header():
     if 'Authorization' not in request.headers:
-        print("Aborting from within get_token_auth_header")
+        cprint("auth.py Request", request)
+        cprint("auth.py Request Headers", request.headers)
         abort(401)
 
     auth_header_full = request.headers['Authorization']

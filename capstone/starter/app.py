@@ -62,6 +62,8 @@ def create_app(test_config=None):
     @app.route('/actors', methods=['GET'])
     @check_auth('get:actors')
     def get_actors(payload):
+        cprint("Request", request)
+        cprint("Request Headers", request.headers)
         all_actors = models.Actor.query.all()
         formatted_response = json_formatter("Actor", all_actors)
         return formatted_response
