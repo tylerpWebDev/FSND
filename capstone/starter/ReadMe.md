@@ -50,8 +50,6 @@ Todos
 		
 		Todo Tuesday:
 			- Review project rubric  (https://review.udacity.com/#!/rubrics/2682/view)
-			- Double check PATCH and DELETE routes
-				- Apparently these are returning more than one record when retrieving records by ID
 			- Figure out how to store the token once it has been retrieved from the get_token module
 			- Update test_app.py to include tests for all levels of authentication
 			- Eliminate unneccessary files

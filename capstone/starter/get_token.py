@@ -27,3 +27,11 @@ def get_token(user, pwd):
     token = json.loads(f.read().decode("utf-8"))['access_token']
     f.close()
     return token
+
+
+producer_token = get_token("producer@casting.com", "Testpassword!")
+
+print("")
+print("Producer Token")
+print(producer_token)
+print("")

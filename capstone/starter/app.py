@@ -1,5 +1,5 @@
 import os
-from flask import Flask, request, abort, jsonify
+from flask import Flask, request, abort, jsonify, abort
 from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
@@ -85,10 +85,13 @@ def create_app(test_config=None):
     # ++++++++++++++++++++++ PATCH ACTOR ++++++++++++++++++++++
     @app.route('/actor/<int:actor_id>', methods=['GET', 'PATCH'])
     @check_auth('patch:actors')
-    def patch_actor(actor_id, payload):
+    def patch_actor(payload, actor_id):
         req_data = json.loads(request.data.decode("utf-8"))
         actor = [models.Actor.query.filter(
             models.Actor.id == actor_id).one_or_none()]
+        if actor[0] is None:
+            return "No actor exists by that ID."
+            abort(500)
         actor[0].name = req_data["name"]
         actor[0].age = req_data["age"]
         actor[0].gender = req_data["gender"]
@@ -99,9 +102,12 @@ def create_app(test_config=None):
     # ++++++++++++++++++++++ DELETE ACTOR ++++++++++++++++++++++
     @app.route('/actor/<int:actor_id>/delete', methods=['DELETE'])
     @check_auth('delete:actors')
-    def delete_actor(actor_id, payload):
+    def delete_actor(payload, actor_id):
         actor = models.Actor.query.filter(
             models.Actor.id == actor_id).one_or_none()
+        if actor is None:
+            return "No actor exists by that ID."
+            abort(500)
         name = actor.name
         actor.delete()
         return name + " has been removed from the database.", 200
@@ -144,10 +150,13 @@ def create_app(test_config=None):
 
     @app.route('/movies/<int:movie_id>', methods=['GET', 'PATCH'])
     @check_auth('patch:movies')
-    def patch_movie(movie_id, payload):
+    def patch_movie(payload, movie_id):
         req_data = json.loads(request.data.decode("utf-8"))
         movie = [models.Movies.query.filter(
             models.Movies.id == movie_id).one_or_none()]
+        if movie[0] is None:
+            return "No movie exists by that ID."
+            abort(500)
         movie[0].title = req_data["title"]
         movie[0].release_date = datetime.strptime(
             req_data["release_date"], '%Y-%m-%d %H:%M:%S.%f')
@@ -158,8 +167,12 @@ def create_app(test_config=None):
     # ++++++++++++++++++++++ DELETE Movie ++++++++++++++++++++++
     @app.route('/movie/<int:movie_id>/delete', methods=['DELETE'])
     @check_auth('delete:movies')
-    def delete_movie(movie_id, payload):
-        movie = models.Movies.query.filter(models.Movies.id == movie_id).one_or_none()
+    def delete_movie(payload, movie_id):
+        movie = models.Movies.query.filter(
+            models.Movies.id == movie_id).one_or_none()
+        if movie is None:
+            return "No movie exists by that ID."
+            abort(500)
         title = movie.title
         movie.delete()
         return title + " has been removed from the database.", 200
@@ -198,7 +211,15 @@ def create_app(test_config=None):
             "success": False,
             "error": 403,
             "message": "Forbidden.  You do not have permissions to perform this action."
-        }), 401
+        }), 403
+
+    @app.errorhandler(500)
+    def unauthorized(error):
+        return jsonify({
+            "success": False,
+            "error": 500,
+            "message": "Internal Server Error.  If you attempted to interact with a database record using an ID, it is likely that no record exists with said ID."
+        }), 500
 
 
 # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
