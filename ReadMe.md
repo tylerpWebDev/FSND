@@ -48,11 +48,12 @@
 Todos
 	Backend
 		
-		Todo Tuesday:
+		Todo:
 			- Review project rubric  (https://review.udacity.com/#!/rubrics/2682/view)
-			- Figure out how to store the token once it has been retrieved from the get_token module
 			- Update test_app.py to include tests for all levels of authentication
 			- Eliminate unneccessary files
+			- Configure JWT token for use on deployed application
 			- Clean up comments
 			- Update gitignore file
+			- Add heroku project URL to the settings in Auth0 to enable requests from that domain
 			

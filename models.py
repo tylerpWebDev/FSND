@@ -6,14 +6,17 @@ import json
 from flask import jsonify
 
 
-database_name = "casting_agency"
-database_path = "postgres://{}/{}".format('localhost:5432', database_name)
-# project_dir = os.path.dirname(os.path.abspath(__file__))
-# database_path = "sqlite:///{}".format(
-#     os.path.join(project_dir, database_filename))
-
-print("database path")
+database_path = os.environ.get("DATABASE_URL")
+# database_path = "postgres://localhost:5432/casting_agency"
+print("")
+print("database_path")
 print(database_path)
+print("")
+
+print("")
+print("os.environ")
+print(os.environ)
+print("")
 
 
 db = SQLAlchemy()
