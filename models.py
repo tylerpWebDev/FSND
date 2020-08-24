@@ -6,16 +6,11 @@ import json
 from flask import jsonify
 
 
-#Uncomment this line when pushing code to the Heroku Deployment and Git
+# Uncomment this line when pushing code to the Heroku Deployment and Git
 database_path = os.environ.get("DATABASE_URL")
 
-#Uncomment this line when running the database locally
+# Uncomment this line when running the database locally
 # database_path = "postgres://localhost:5432/casting_agency"
-
-print("")
-print("database_path")
-print(database_path)
-print("")
 
 
 db = SQLAlchemy()
@@ -26,17 +21,6 @@ def setup_db(app, database_path=database_path):
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     db.app = app
     db.init_app(app)
-
-
-def cprint(string1, string2):
-    print("=========================")
-    print("")
-    print(string1)
-    print("")
-    print(string2)
-    print("")
-    print("=========================")
-
 
 
 def db_drop_and_create_all():
@@ -65,7 +49,6 @@ class Movies(db.Model):
 
     def __repr__(self):
         return '"id": "{self.id}", "title": "{self.title}", "release_date": "{self.release_date}" '.format(self=self)
-        # return json.dumps(self)
 
 
 class Actor(db.Model):
@@ -89,15 +72,3 @@ class Actor(db.Model):
 
     def __repr__(self):
         return '"id": "{self.id}", "name": "{self.name}", "age": "{self.age}", "gender": "{self.gender}"'.format(self=self)
-        # return json.dumps(self)
-
-
-
-
-
-
-
-
-
-
-

@@ -9,13 +9,6 @@ from datetime import datetime
 from config import tokens
 
 
-def cprint(label, data):
-    print("")
-    print(label)
-    print(data)
-    print("")
-
-
 assistant_token = {
     'Authorization': tokens['assistant_token']
 }
@@ -153,7 +146,6 @@ class CastingAgencyTestCase(unittest.TestCase):
             "/actor/9",
             json=self.updated_actor,
             headers=producer_token)
-        cprint("test_patch_actor_producer res", res.data)
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 200)

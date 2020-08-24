@@ -59,15 +59,12 @@ def check_permissions(permission_name, payload):
 
 
 def verify_decode_jwt(token):
-    # GET THE PUBLIC KEY FROM AUTH0
     jsonurl = urlopen(
         f'https://udacity-capstone-castingagency.us.auth0.com/.well-known/jwks.json')
     jwks = json.loads(jsonurl.read())
 
-    # GET THE DATA IN THE HEADER
     unverified_header = jwt.get_unverified_header(token)
 
-    # CHOOSE OUR KEY
     rsa_key = {}
     if 'kid' not in unverified_header:
         raise AuthError({
@@ -84,11 +81,8 @@ def verify_decode_jwt(token):
                 'n': key['n'],
                 'e': key['e']
             }
-
-    # Finally, verify!!!
     if rsa_key:
         try:
-            # USE THE KEY TO VALIDATE THE JWT
             payload = jwt.decode(
                 token,
                 rsa_key,

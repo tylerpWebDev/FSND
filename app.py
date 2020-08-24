@@ -6,13 +6,7 @@ from flask_cors import CORS
 import models
 import json
 from auth import AuthError, check_auth
-
-
-def cprint(label, data):
-    print("")
-    print(label)
-    print(data)
-    print("")
+from home_text import home_text
 
 
 def json_formatter(model, data):
@@ -46,7 +40,7 @@ def create_app(test_config=None):
     # ++++++++++++++++++++++ HOME ROUTE ++++++++++++++++++++++
     @app.route('/')
     def home_test_route():
-        return "This is your home test route for your capstone project"
+        return home_text
 
     @app.route('/headers', methods=["GET"])
     def headers(token):
@@ -62,8 +56,6 @@ def create_app(test_config=None):
     @app.route('/actors', methods=['GET'])
     @check_auth('get:actors')
     def get_actors(payload):
-        cprint("Request", request)
-        cprint("Request Headers", request.headers)
         all_actors = models.Actor.query.all()
         formatted_response = json_formatter("Actor", all_actors)
         return formatted_response
@@ -120,8 +112,6 @@ def create_app(test_config=None):
 # =========================================================================
 
     # ++++++++++++++++++++++ GET MOVIES ++++++++++++++++++++++
-
-
     @app.route('/movies', methods=['GET'])
     @check_auth('get:movies')
     def get_movies(payload):
@@ -149,7 +139,6 @@ def create_app(test_config=None):
         return json.dumps(req_data), 200
 
     # ++++++++++++++++++++++ PATCH MOVIE ++++++++++++++++++++++
-
     @app.route('/movies/<int:movie_id>', methods=['GET', 'PATCH'])
     @check_auth('patch:movies')
     def patch_movie(payload, movie_id):
@@ -220,7 +209,7 @@ def create_app(test_config=None):
         return jsonify({
             "success": False,
             "error": 500,
-            "message": "Internal Server Error.  If you attempted to interact with a database record using an ID, it is likely that no record exists with said ID."
+            "message": "Internal Server Error."
         }), 500
 
 
