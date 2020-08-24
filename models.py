@@ -6,16 +6,15 @@ import json
 from flask import jsonify
 
 
+#Uncomment this line when pushing code to the Heroku Deployment and Git
 database_path = os.environ.get("DATABASE_URL")
+
+#Uncomment this line when running the database locally
 # database_path = "postgres://localhost:5432/casting_agency"
+
 print("")
 print("database_path")
 print(database_path)
-print("")
-
-print("")
-print("os.environ")
-print(os.environ)
 print("")
 
 

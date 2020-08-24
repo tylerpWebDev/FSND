@@ -52,8 +52,7 @@ Todos
 			- Review project rubric  (https://review.udacity.com/#!/rubrics/2682/view)
 			- Update test_app.py to include tests for all levels of authentication
 			- Eliminate unneccessary files
-			- Configure JWT token for use on deployed application
 			- Clean up comments
-			- Update gitignore file
-			- Add heroku project URL to the settings in Auth0 to enable requests from that domain
+			- Update gitignore file and remove cached files
+			- Write tests in Postman results
 			

@@ -14,4 +14,6 @@ Thumbs.db
 
 
 env
-curl_endpoints
+setup.sh
+git_cleanup.sh
+get_token.py

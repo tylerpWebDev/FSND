@@ -6,12 +6,8 @@ from flask_sqlalchemy import SQLAlchemy
 from app import create_app, json_formatter
 from models import setup_db, Movies, Actor
 from datetime import datetime
+from config import tokens
 
-
-# ============================= Note!!!! =============================
-# Refer here for setup example
-# (https://github.com/tylerpWebDev/Udacity_Trivia_App/blob/master/backend/test_flaskr.py)
-# =======================================================================================
 
 def cprint(label, data):
     print("")
@@ -20,15 +16,26 @@ def cprint(label, data):
     print("")
 
 
+assistant_token = {
+    'Authorization': tokens['assistant_token']
+}
+
+director_token = {
+    'Authorization': tokens['director_token']
+}
+
+producer_token = {
+    'Authorization': tokens['producer_token']
+}
+
+
 class CastingAgencyTestCase(unittest.TestCase):
 
     def setUp(self):
         self.app = create_app()
         self.client = self.app.test_client
-        self.database_name = "casting_agency_test.sqlite"
-        project_dir = os.path.dirname(os.path.abspath(__file__))
-        self.database_path = "sqlite:///{}".format(
-            os.path.join(project_dir, self.database_name))
+        self.database_path = os.environ.get("DATABASE_URL")
+        # self.database_path = "postgres://localhost:5432/casting_agency"
 
         setup_db(self.app, self.database_path)
 
@@ -73,8 +80,22 @@ class CastingAgencyTestCase(unittest.TestCase):
     # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     #     ++++++++++++++++++++++++++++++  GET ALL ACTORS  +++++++++++++++++
     # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-    def test_get_actors(self):
-        res = self.client().get("/actors")
+    def test_get_actors_assistant(self):
+        res = self.client().get("/actors", headers=assistant_token)
+        data = json.loads(res.data)
+
+        self.assertTrue(len(data) > 0)
+        self.assertEqual(res.status_code, 200)
+
+    def test_get_actors_director(self):
+        res = self.client().get("/actors", headers=director_token)
+        data = json.loads(res.data)
+
+        self.assertTrue(len(data) > 0)
+        self.assertEqual(res.status_code, 200)
+
+    def test_get_actors_producer(self):
+        res = self.client().get("/actors", headers=producer_token)
         data = json.loads(res.data)
 
         self.assertTrue(len(data) > 0)
@@ -83,8 +104,22 @@ class CastingAgencyTestCase(unittest.TestCase):
     # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     #     ++++++++++++++++++++++++++++++  POST NEW ACTOR  +++++++++++++++++
     # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-    def test_create_new_actor(self):
-        res = self.client().post("/actors", json=self.new_actor)
+    def test_create_new_actor_assistant(self):
+        res = self.client().post("/actors", json=self.new_actor, headers=assistant_token)
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 403)
+        self.assertTrue(res is not None)
+
+    def test_create_new_actor_director(self):
+        res = self.client().post("/actors", json=self.new_actor, headers=director_token)
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 200)
+        self.assertTrue(res is not None)
+
+    def test_create_new_actor_producer(self):
+        res = self.client().post("/actors", json=self.new_actor, headers=producer_token)
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 200)
@@ -93,15 +128,42 @@ class CastingAgencyTestCase(unittest.TestCase):
     # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     #     ++++++++++++++++++++++++++++++  PATCH ACTOR  +++++++++++++++++
     # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-    def test_patch_actor(self):
-        res = self.client().patch("/actor/1", json=self.updated_actor)
+    def test_patch_actor_assistant(self):
+        res = self.client().patch(
+            "/actor/9",
+            json=self.updated_actor,
+            headers=assistant_token)
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 403)
+        self.assertTrue(res is not None)
+
+    def test_patch_actor_director(self):
+        res = self.client().patch(
+            "/actor/9",
+            json=self.updated_actor,
+            headers=director_token)
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 200)
+        self.assertTrue(res is not None)
+
+    def test_patch_actor_producer(self):
+        res = self.client().patch(
+            "/actor/9",
+            json=self.updated_actor,
+            headers=producer_token)
+        cprint("test_patch_actor_producer res", res.data)
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 200)
         self.assertTrue(res is not None)
 
     def test_reset_actor(self):
-        res = self.client().patch("/actor/1", json=self.reset_actor)
+        res = self.client().patch(
+            "/actor/9",
+            json=self.reset_actor,
+            headers=producer_token)
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 200)
@@ -110,12 +172,45 @@ class CastingAgencyTestCase(unittest.TestCase):
     # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     #     ++++++++++++++++++++++++++++++  DELETE ACTOR  +++++++++++++++++
     # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-    def test_delete_actors(self):
+    def test_delete_actors_assistant(self):
         all_actors = json.loads(json_formatter("Actor", Actor.query.all()))
         delete_actor_id = all_actors[len(all_actors) - 1]["id"]
 
         delete_endpoint = "/actor/" + str(delete_actor_id) + "/delete"
-        res = self.client().delete(delete_endpoint)
+        res = self.client().delete(delete_endpoint, headers=assistant_token)
+        data = res.data
+
+        all_actors_len_check = len(
+            json.loads(
+                json_formatter(
+                    "Actor",
+                    Actor.query.all())))
+
+        self.assertEqual(res.status_code, 403)
+
+    def test_delete_actors_director(self):
+        all_actors = json.loads(json_formatter("Actor", Actor.query.all()))
+        delete_actor_id = all_actors[len(all_actors) - 1]["id"]
+
+        delete_endpoint = "/actor/" + str(delete_actor_id) + "/delete"
+        res = self.client().delete(delete_endpoint, headers=director_token)
+        data = res.data
+
+        all_actors_len_check = len(
+            json.loads(
+                json_formatter(
+                    "Actor",
+                    Actor.query.all())))
+
+        self.assertEqual(res.status_code, 200)
+        self.assertTrue(len(all_actors) - 1 == all_actors_len_check)
+
+    def test_delete_actors_producer(self):
+        all_actors = json.loads(json_formatter("Actor", Actor.query.all()))
+        delete_actor_id = all_actors[len(all_actors) - 1]["id"]
+
+        delete_endpoint = "/actor/" + str(delete_actor_id) + "/delete"
+        res = self.client().delete(delete_endpoint, headers=producer_token)
         data = res.data
 
         all_actors_len_check = len(
@@ -130,8 +225,22 @@ class CastingAgencyTestCase(unittest.TestCase):
     # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     #     ++++++++++++++++++++++++++++++  GET ALL MOVIES  +++++++++++++++++
     # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-    def test_get_movies(self):
-        res = self.client().get("/movies")
+    def test_get_movies_assistant(self):
+        res = self.client().get("/movies", headers=assistant_token)
+        data = json.loads(res.data)
+
+        self.assertTrue(len(data) > 0)
+        self.assertEqual(res.status_code, 200)
+
+    def test_get_movies_director(self):
+        res = self.client().get("/movies", headers=director_token)
+        data = json.loads(res.data)
+
+        self.assertTrue(len(data) > 0)
+        self.assertEqual(res.status_code, 200)
+
+    def test_get_movies_producer(self):
+        res = self.client().get("/movies", headers=producer_token)
         data = json.loads(res.data)
 
         self.assertTrue(len(data) > 0)
@@ -140,8 +249,22 @@ class CastingAgencyTestCase(unittest.TestCase):
     # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     #     ++++++++++++++++++++++++++++++  POST NEW MOVIE  +++++++++++++++++
     # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-    def test_create_new_movie(self):
-        res = self.client().post("/movies", json=self.new_movie)
+    def test_create_new_movie_assistant(self):
+        res = self.client().post("/movies", json=self.new_movie, headers=assistant_token)
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 403)
+        self.assertTrue(res is not None)
+
+    def test_create_new_movie_director(self):
+        res = self.client().post("/movies", json=self.new_movie, headers=director_token)
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 403)
+        self.assertTrue(res is not None)
+
+    def test_create_new_movie_producer(self):
+        res = self.client().post("/movies", json=self.new_movie, headers=producer_token)
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 200)
@@ -150,15 +273,41 @@ class CastingAgencyTestCase(unittest.TestCase):
     # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     #     ++++++++++++++++++++++++++++++  PATCH MOVIE  +++++++++++++++++
     # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-    def test_patch_movie(self):
-        res = self.client().patch("/movies/1", json=self.updated_movie)
+    def test_patch_movie_assistant(self):
+        res = self.client().patch(
+            "/movies/1",
+            json=self.updated_movie,
+            headers=assistant_token)
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 403)
+        self.assertTrue(res is not None)
+
+    def test_patch_movie_director(self):
+        res = self.client().patch(
+            "/movies/1",
+            json=self.updated_movie,
+            headers=director_token)
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 200)
+        self.assertTrue(res is not None)
+
+    def test_patch_movie_producer(self):
+        res = self.client().patch(
+            "/movies/1",
+            json=self.updated_movie,
+            headers=producer_token)
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 200)
         self.assertTrue(res is not None)
 
     def test_reset_movie(self):
-        res = self.client().patch("/movies/1", json=self.reset_movie)
+        res = self.client().patch(
+            "/movies/1",
+            json=self.reset_movie,
+            headers=producer_token)
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 200)
@@ -167,20 +316,46 @@ class CastingAgencyTestCase(unittest.TestCase):
     # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     #     ++++++++++++++++++++++++++++++  DELETE MOVIE  +++++++++++++++++
     # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-    def test_delete_movie(self):
+    def test_delete_movie_assistant(self):
         all_movies = json.loads(json_formatter("Movies", Movies.query.all()))
         delete_movie_id = all_movies[len(all_movies) - 1]["id"]
 
         delete_endpoint = "/movie/" + str(delete_movie_id) + "/delete"
-        res = self.client().delete(delete_endpoint)
+        res = self.client().delete(delete_endpoint, headers=assistant_token)
         data = res.data
 
-        all_movies_len_check = json.loads(json_formatter("Movies", Movies.query.all()))
+        all_movies_len_check = json.loads(
+            json_formatter("Movies", Movies.query.all()))
+
+        self.assertEqual(res.status_code, 403)
+
+    def test_delete_movie_director(self):
+        all_movies = json.loads(json_formatter("Movies", Movies.query.all()))
+        delete_movie_id = all_movies[len(all_movies) - 1]["id"]
+
+        delete_endpoint = "/movie/" + str(delete_movie_id) + "/delete"
+        res = self.client().delete(delete_endpoint, headers=director_token)
+        data = res.data
+
+        all_movies_len_check = json.loads(
+            json_formatter("Movies", Movies.query.all()))
+
+        self.assertEqual(res.status_code, 403)
+
+    def test_delete_movie_producer(self):
+        all_movies = json.loads(json_formatter("Movies", Movies.query.all()))
+        delete_movie_id = all_movies[len(all_movies) - 1]["id"]
+
+        delete_endpoint = "/movie/" + str(delete_movie_id) + "/delete"
+        res = self.client().delete(delete_endpoint, headers=producer_token)
+        data = res.data
+
+        all_movies_len_check = json.loads(
+            json_formatter("Movies", Movies.query.all()))
 
         self.assertEqual(res.status_code, 200)
         self.assertTrue(len(all_movies) - 1 == len(all_movies_len_check))
 
 
-# Make the tests conveniently executable
 if __name__ == "__main__":
     unittest.main()
