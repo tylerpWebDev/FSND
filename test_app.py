@@ -27,8 +27,7 @@ class CastingAgencyTestCase(unittest.TestCase):
     def setUp(self):
         self.app = create_app()
         self.client = self.app.test_client
-        self.database_path = os.environ.get("DATABASE_URL")
-        # self.database_path = "postgres://localhost:5432/casting_agency"
+        self.database_path = os.environ.get('DATABASE_URL')
 
         setup_db(self.app, self.database_path)
 
